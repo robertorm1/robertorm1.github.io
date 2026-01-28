@@ -11,7 +11,6 @@
             font-family: 'Quicksand', sans-serif;
             background-color: #1a202c;
             overflow-x: hidden;
-            /* Prevent bounce on iOS */
             position: fixed;
             height: 100%;
             width: 100%;
@@ -19,11 +18,8 @@
             -webkit-overflow-scrolling: touch;
         }
         
-        .font-display {
-            font-family: 'Fredoka One', cursive;
-        }
+        .font-display { font-family: 'Fredoka One', cursive; }
 
-        /* Custom Animations */
         @keyframes float {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(2deg); }
@@ -34,21 +30,9 @@
             50% { transform: rotate(3deg); }
         }
 
-        @keyframes leaf-sway {
-            0%, 100% { transform: rotate(-5deg); }
-            50% { transform: rotate(5deg); }
-        }
-
         .animate-float { animation: float 6s ease-in-out infinite; }
         .animate-wiggle { animation: wiggle 3s ease-in-out infinite; }
-        .animate-leaf { animation: leaf-sway 4s ease-in-out infinite; }
 
-        /* Texture overlay */
-        .texture-overlay {
-            background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
-        }
-
-        /* 3D Card Effect */
         .card-container {
             perspective: 1000px;
             height: 100vh;
@@ -65,11 +49,10 @@
             max-width: 320px;
             height: 85vh;
             max-height: 600px;
+            cursor: pointer;
         }
 
-        .invitation-card.flipped {
-            transform: rotateY(180deg);
-        }
+        .invitation-card.flipped { transform: rotateY(180deg); }
 
         .card-face {
             backface-visibility: hidden;
@@ -77,32 +60,29 @@
             position: absolute;
             inset: 0;
             border-radius: 24px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: opacity 0s 0.4s; /* espera a que termine el giro */
         }
 
-        .card-back {
-            transform: rotateY(180deg);
+        .card-back { 
+            transform: rotateY(180deg); 
+            overflow-y: auto;
         }
 
-        /* Responsive Typography */
-        .responsive-text {
-            font-size: clamp(2.5rem, 8vw, 3.5rem);
+        /* Oculta la cara NO visible */
+        .invitation-card.flipped .card-face.card-front {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+        .invitation-card:not(.flipped) .card-face.card-back {
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
         }
 
-        .responsive-date {
-            font-size: clamp(1.25rem, 4vw, 1.5rem);
-        }
-
-        /* Mobile Optimizations */
-        .mobile-padding {
-            padding: 0.75rem;
-        }
-
-        .mobile-button {
-            min-height: 44px;
-            font-size: 16px; /* Prevent zoom on iOS */
-        }
-
-        /* Confetti Canvas */
         #confetti-canvas {
             position: fixed;
             top: 0;
@@ -113,59 +93,34 @@
             z-index: 50;
         }
 
-        /* Safe area for notched devices */
-        .safe-area-top {
-            padding-top: env(safe-area-inset-top, 1rem);
-        }
-
-        .safe-area-bottom {
-            padding-bottom: env(safe-area-inset-bottom, 1rem);
-        }
-
-        /* Touch feedback */
-        .touch-feedback:active {
-            transform: scale(0.98);
-        }
+        .touch-feedback:active { transform: scale(0.98); }
     </style>
 </head>
 <body class="min-h-screen relative selection:bg-green-500 selection:text-white">
 
-    <!-- Background Elements -->
-    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <!-- Sun/Moon -->
-        <div class="absolute top-10 right-4 sm:right-10 w-24 h-24 sm:w-32 sm:h-32 bg-yellow-300 rounded-full blur-2xl opacity-60 animate-pulse"></div>
-        <!-- Mountains -->
-        <div class="absolute bottom-0 w-full h-48 sm:h-64 bg-green-900 opacity-30" style="clip-path: polygon(0% 100%, 0% 40%, 20% 60%, 40% 30%, 60% 50%, 80% 20%, 100% 40%, 100% 100%);"></div>
-        <div class="absolute bottom-0 w-full h-32 sm:h-48 bg-green-800 opacity-40" style="clip-path: polygon(0% 100%, 0% 60%, 30% 40%, 50% 70%, 70% 50%, 100% 80%, 100% 100%);"></div>
-    </div>
-
     <canvas id="confetti-canvas"></canvas>
 
-    <div class="card-container safe-area-top safe-area-bottom">
-        <div id="card" class="invitation-card relative cursor-pointer group touch-feedback">
+    <div class="card-container">
+        <div id="card" class="invitation-card touch-feedback">
             
-            <!-- FRONT OF CARD -->
-            <div class="card-face absolute inset-0 w-full h-full bg-amber-50 shadow-2xl border-8 border-amber-200 overflow-hidden flex flex-col">
-                <!-- Texture -->
+            <!-- FRONT -->
+            <div class="card-face card-front absolute inset-0 w-full h-full bg-amber-50 rounded-3xl shadow-2xl border-8 border-amber-200 overflow-hidden flex flex-col">
                 <div class="absolute inset-0 texture-overlay opacity-50"></div>
-                
-                <!-- Decorative Border -->
                 <div class="absolute inset-2 border-4 border-dashed border-green-600 rounded-2xl opacity-30 pointer-events-none"></div>
 
                 <!-- Header -->
-                <div class="relative pt-6 sm:pt-8 text-center z-10">
-                    <h2 class="text-green-700 text-lg sm:text-xl font-bold tracking-widest uppercase mb-2 opacity-80">Estás Invitado</h2>
-                    <div class="flex justify-center space-x-2 mb-3 sm:mb-4">
-                        <span class="text-xl sm:text-2xl animate-bounce" style="animation-delay: 0s">🦕</span>
-                        <span class="text-xl sm:text-2xl animate-bounce" style="animation-delay: 0.2s">🌿</span>
-                        <span class="text-xl sm:text-2xl animate-bounce" style="animation-delay: 0.4s">🦖</span>
+                <div class="relative pt-6 text-center z-10">
+                    <h2 class="text-green-700 text-lg font-bold tracking-widest uppercase mb-2 opacity-80">Estás Invitado</h2>
+                    <div class="flex justify-center space-x-2 mb-3">
+                        <span class="text-xl animate-bounce">🦕</span>
+                        <span class="text-xl animate-bounce" style="animation-delay: 0.2s">🌿</span>
+                        <span class="text-xl animate-bounce" style="animation-delay: 0.4s">🦖</span>
                     </div>
                 </div>
 
                 <!-- Main Visual: Dinosaur -->
                 <div class="flex-grow flex items-center justify-center relative z-10">
-                    <!-- Dino SVG (Responsive) -->
-                    <svg class="w-48 h-48 sm:w-64 sm:h-64 animate-float drop-shadow-2xl" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg class="w-48 h-48 animate-float drop-shadow-2xl" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <!-- Body -->
                         <path d="M40 140 C 20 140, 20 100, 50 90 C 60 50, 100 40, 130 60 C 150 70, 160 90, 150 110 C 160 130, 140 150, 110 150 L 40 150 Z" fill="#4ADE80" stroke="#166534" stroke-width="4"/>
                         <!-- Belly -->
@@ -173,7 +128,6 @@
                         <!-- Eye -->
                         <circle cx="110" cy="75" r="5" fill="white"/>
                         <circle cx="112" cy="75" r="2" fill="black"/>
-                        <!-- Pupil highlight -->
                         <circle cx="113" cy="74" r="1" fill="white"/>
                         <!-- Smile -->
                         <path d="M105 85 Q 115 90 125 85" stroke="#166534" stroke-width="3" stroke-linecap="round" fill="none"/>
@@ -188,76 +142,70 @@
                         <path d="M110 150 L 110 170 L 130 170" stroke="#166534" stroke-width="5" stroke-linecap="round" fill="none"/>
                     </svg>
                     
-                    <!-- Speech Bubble -->
-                    <div class="absolute top-8 right-2 sm:top-10 sm:right-4 bg-white px-3 py-2 rounded-xl rounded-bl-none shadow-lg border-2 border-green-200 animate-wiggle">
-                        <p class="text-green-800 font-bold text-xs sm:text-sm">¡ROAR!</p>
+                    <div class="absolute top-8 right-2 bg-white px-3 py-2 rounded-xl rounded-bl-none shadow-lg border-2 border-green-200 animate-wiggle">
+                        <p class="text-green-800 font-bold text-xs">¡ROAR!</p>
                     </div>
                 </div>
 
                 <!-- Name -->
-                <div class="relative z-10 text-center pb-8 sm:pb-12">
-                    <h1 class="font-display responsive-text text-green-600 drop-shadow-md transform -rotate-2">Humberto</h1>
-                    <p class="text-amber-700 font-bold mt-1 sm:mt-2 text-base sm:text-lg">Cumple Años</p>
+                <div class="relative z-10 text-center pb-8">
+                    <h1 class="font-display text-4xl text-green-600 drop-shadow-md transform -rotate-2">Humber</h1>
+                    <p class="text-amber-700 font-bold mt-1 text-base">Cumple Años</p>
                 </div>
 
-                <!-- Click Hint -->
                 <div class="absolute bottom-4 w-full text-center text-amber-800/50 text-xs font-bold uppercase tracking-widest animate-pulse">
                     Toca para abrir
                 </div>
             </div>
 
-            <!-- BACK OF CARD -->
-            <div class="card-back card-face absolute inset-0 w-full h-full bg-green-50 rounded-3xl shadow-2xl border-8 border-green-200 overflow-hidden flex flex-col p-4 sm:p-6">
-                 <!-- Texture -->
+            <!-- BACK -->
+            <div class="card-back card-face absolute inset-0 w-full h-full bg-green-50 rounded-3xl shadow-2xl border-8 border-green-200 overflow-hidden flex flex-col p-4">
                  <div class="absolute inset-0 texture-overlay opacity-50"></div>
 
-                 <!-- Header Back -->
-                 <div class="text-center mb-4 sm:mb-6 relative z-10">
-                     <div class="inline-block bg-green-600 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-bold tracking-wider shadow-md mb-1 sm:mb-2">DETALLES</div>
-                     <h3 class="font-display text-2xl sm:text-3xl text-green-800">¡Nos vemos!</h3>
+                 <div class="text-center mb-4 relative z-10">
+                     <div class="inline-block bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold tracking-wider shadow-md mb-1">DETALLES</div>
+                     <h3 class="font-display text-2xl text-green-800">¡Nos vemos!</h3>
                  </div>
 
-                 <!-- Content -->
-                 <div class="flex-grow flex flex-col justify-center space-y-4 sm:space-y-6 relative z-10">
+                 <div class="flex-grow flex flex-col justify-center space-y-4 relative z-10">
                      
-                     <!-- Date Block -->
-                     <div class="bg-white/80 backdrop-blur-sm p-3 sm:p-4 rounded-2xl border-2 border-green-100 shadow-sm transform hover:scale-105 transition-transform duration-300">
+                     <!-- Date Block (CORRECTED) -->
+                     <div class="bg-white/80 backdrop-blur-sm p-3 rounded-2xl border-2 border-green-100 shadow-sm">
                          <div class="flex items-center space-x-3">
-                             <div class="bg-green-100 p-2 rounded-full text-xl sm:text-2xl">📅</div>
+                             <div class="bg-green-100 p-2 rounded-full text-xl">📅</div>
                              <div>
                                  <p class="text-xs text-green-600 font-bold uppercase">Fecha</p>
-                                 <p class="responsive-date font-bold text-gray-800">31 de Febrero</p>
-                                 <p class="text-xs text-gray-500">¡Marca tu calendario!</p>
+                                 <p class="text-lg font-bold text-gray-800">31 de Enero</p>
+                                 <p class="text-xs text-gray-500">5:00 PM</p>
                              </div>
                          </div>
                      </div>
 
                      <!-- Location Block -->
-                     <div class="bg-white/80 backdrop-blur-sm p-3 sm:p-4 rounded-2xl border-2 border-green-100 shadow-sm transform hover:scale-105 transition-transform duration-300">
+                     <div class="bg-white/80 backdrop-blur-sm p-3 rounded-2xl border-2 border-green-100 shadow-sm">
                         <div class="flex items-center space-x-3">
-                            <div class="bg-amber-100 p-2 rounded-full text-xl sm:text-2xl">📍</div>
+                            <div class="bg-amber-100 p-2 rounded-full text-xl">📍</div>
                             <div>
                                 <p class="text-xs text-amber-600 font-bold uppercase">Ubicación</p>
-                                <p class="text-base sm:text-lg font-bold text-gray-800 leading-tight">José Robledo 103</p>
-                                <a href="https://www.google.com/maps/search/?api=1&query=José+Robledo+103" target="_blank" class="text-xs text-blue-500 hover:underline mt-1 inline-block">Ver en mapa &rarr;</a>
+                                <p class="text-base font-bold text-gray-800 leading-tight">José Robledo 103</p>
+                                <a href="https://maps.app.goo.gl/QC62zvzyypXFEoEQ6" target="_blank" class="text-xs text-blue-500 hover:underline mt-1 inline-block">Ver en mapa &rarr;</a>
                             </div>
                         </div>
                     </div>
 
                     <!-- RSVP Block -->
                     <div class="text-center pt-2">
-                        <p class="text-green-800 font-semibold text-sm mb-2">¿Vienes a la aventura jurásica?</p>
-                        <button onclick="event.stopPropagation(); alert('¡Gracias por confirmar! 🦖');" class="mobile-button bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 sm:px-6 rounded-full shadow-lg transform active:scale-95 transition-all border-b-4 border-green-700">
+                      <!--  <p class="text-green-800 font-semibold text-sm mb-2">¿Vienes a la aventura jurásica?</p>
+                        <button onclick="event.stopPropagation(); alert('¡Gracias por confirmar! 🦖');" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full shadow-lg border-b-4 border-green-700">
                             Confirmar Asistencia
-                        </button>
+                        </button>-->
                     </div>
 
                  </div>
 
-                 <!-- Footer Decoration -->
                  <div class="mt-auto flex justify-between items-end opacity-60">
-                     <svg class="w-8 h-8 sm:w-12 sm:h-12 text-green-300 animate-leaf" fill="currentColor" viewBox="0 0 24 24"><path d="M17,8C8,10,5.9,16.17,3.82,21.34L5.71,22l1-2.3A4.49,4.49,0,0,0,8,20C19,20,22,3,22,3,21,5,14,5.25,9,6.25S2,11.5,2,13.5a6.22,6.22,0,0,0,1.75,3.75C7,13,11,9,17,8Z"/></svg>
-                     <svg class="w-6 h-6 sm:w-10 sm:h-10 text-green-300 animate-leaf" style="animation-delay: 1s" fill="currentColor" viewBox="0 0 24 24"><path d="M17,8C8,10,5.9,16.17,3.82,21.34L5.71,22l1-2.3A4.49,4.49,0,0,0,8,20C19,20,22,3,22,3,21,5,14,5.25,9,6.25S2,11.5,2,13.5a6.22,6.22,0,0,0,1.75,3.75C7,13,11,9,17,8Z"/></svg>
+                     <svg class="w-8 h-8 text-green-300" fill="currentColor" viewBox="0 0 24 24"><path d="M17,8C8,10,5.9,16.17,3.82,21.34L5.71,22l1-2.3A4.49,4.49,0,0,0,8,20C19,20,22,3,22,3,21,5,14,5.25,9,6.25S2,11.5,2,13.5a6.22,6.22,0,0,0,1.75,3.75C7,13,11,9,17,8Z"/></svg>
+                     <svg class="w-6 h-6 text-green-300" fill="currentColor" viewBox="0 0 24 24"><path d="M17,8C8,10,5.9,16.17,3.82,21.34L5.71,22l1-2.3A4.49,4.49,0,0,0,8,20C19,20,22,3,22,3,21,5,14,5.25,9,6.25S2,11.5,2,13.5a6.22,6.22,0,0,0,1.75,3.75C7,13,11,9,17,8Z"/></svg>
                  </div>
             </div>
 
@@ -265,48 +213,32 @@
     </div>
 
     <script>
-        // Card Flip Logic
         const card = document.getElementById('card');
         let isFlipped = false;
 
         card.addEventListener('click', () => {
             isFlipped = !isFlipped;
-            if (isFlipped) {
-                card.classList.add('flipped');
-                startConfetti();
-            } else {
-                card.classList.remove('flipped');
-            }
+            isFlipped ? card.classList.add('flipped') : card.classList.remove('flipped');
+            if (isFlipped) startConfetti();
         });
 
-        // Touch support for better mobile experience
+        // Touch support
         let touchStartY = 0;
-        card.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-        });
-
-        card.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            const touchEndY = e.changedTouches[0].clientY;
-            const diff = Math.abs(touchStartY - touchEndY);
-            
-            // Only flip if it's a tap (not a swipe)
+        card.addEventListener('touchstart', e => touchStartY = e.touches[0].clientY);
+        card.addEventListener('touchend', e => {
+            const diff = Math.abs(touchStartY - e.changedTouches[0].clientY);
             if (diff < 10) {
+                e.preventDefault();
                 isFlipped = !isFlipped;
-                if (isFlipped) {
-                    card.classList.add('flipped');
-                    startConfetti();
-                } else {
-                    card.classList.remove('flipped');
-                }
+                isFlipped ? card.classList.add('flipped') : card.classList.remove('flipped');
+                if (isFlipped) startConfetti();
             }
         });
 
-        // Confetti Logic
+        // Confetti
         const canvas = document.getElementById('confetti-canvas');
         const ctx = canvas.getContext('2d');
-        let particles = [];
-        let animationId;
+        let particles = [], animationId;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -342,16 +274,10 @@
         }
 
         function startConfetti() {
-            // Reset particles
             particles = [];
-            for (let i = 0; i < 100; i++) {
-                particles.push(new Particle());
-            }
-            
+            for (let i = 0; i < 100; i++) particles.push(new Particle());
             if (animationId) cancelAnimationFrame(animationId);
             animateConfetti();
-            
-            // Stop after 3 seconds
             setTimeout(() => {
                 cancelAnimationFrame(animationId);
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -363,32 +289,22 @@
             particles.forEach((p, index) => {
                 p.update();
                 p.draw();
-                if (p.y > canvas.height) {
-                    particles.splice(index, 1);
-                }
+                if (p.y > canvas.height) particles.splice(index, 1);
             });
-            if (particles.length > 0) {
-                animationId = requestAnimationFrame(animateConfetti);
-            }
+            if (particles.length > 0) animationId = requestAnimationFrame(animateConfetti);
         }
 
         // Prevent zoom on double tap
         let lastTap = 0;
-        card.addEventListener('touchend', (e) => {
+        card.addEventListener('touchend', e => {
             const currentTime = new Date().getTime();
             const tapLength = currentTime - lastTap;
-            if (tapLength < 500 && tapLength > 0) {
-                e.preventDefault();
-            }
+            if (tapLength < 500 && tapLength > 0) e.preventDefault();
             lastTap = currentTime;
         });
 
         // Handle orientation change
-        window.addEventListener('orientationchange', () => {
-            setTimeout(() => {
-                resizeCanvas();
-            }, 100);
-        });
+        window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 100));
     </script>
 </body>
 </html>

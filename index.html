@@ -1,780 +1,308 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tarjeta de Cumpleaños 🎉</title>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Parisienne&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-    
-    body {
-      font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
-      background: linear-gradient(135deg, #d147a0, #ff9ecb, #ffb6c1);
-      color: #7c2d5f;
-      text-align: center;
-      overflow-x: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-      -webkit-font-smoothing: antialiased;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invitación de Cumpleaños - Humberto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #1a202c;
+            overflow-x: hidden;
+        }
+        
+        .font-display {
+            font-family: 'Fredoka One', cursive;
+        }
 
-    .container {
-      max-width: 600px;
-      width: 100%;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+        /* Custom Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(2deg); }
+        }
+        
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
 
-    /* Estrellas en el fondo */
-    .star {
-      position: absolute;
-      width: 3px;
-      height: 3px;
-      background: #ffffff;
-      border-radius: 50%;
-      opacity: 0.8;
-      animation: twinkle 3s infinite;
-      -webkit-animation: twinkle 3s infinite;
-    }
+        @keyframes stomp {
+            0%, 100% { transform: translateY(0) scaleY(1); }
+            50% { transform: translateY(5px) scaleY(0.95); }
+        }
 
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 1; }
-    }
-    @-webkit-keyframes twinkle {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 1; }
-    }
+        @keyframes leaf-sway {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
 
-    .header {
-      margin-bottom: 30px;
-      width: 100%;
-    }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-wiggle { animation: wiggle 3s ease-in-out infinite; }
+        .animate-stomp { animation: stomp 0.5s ease-in-out infinite; }
+        .animate-leaf { animation: leaf-sway 4s ease-in-out infinite; }
 
-    /* Título mejorado */
-    .birthday-title {
-      margin: 30px 0 20px;
-      text-align: center;
-      position: relative;
-      padding: 15px 0;
-    }
+        /* Texture overlay */
+        .texture-overlay {
+            background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
+        }
 
-    .birthday-text {
-      font-family: 'Dancing Script', cursive;
-      font-size: 4.5rem;
-      color: #ff007f;
-      text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
-      line-height: 1.2;
-      margin-bottom: 10px;
-      position: relative;
-      display: inline-block;
-    }
+        /* 3D Card Effect */
+        .card-container {
+            perspective: 1000px;
+        }
+        
+        .invitation-card {
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
-    /* Gradiente de texto con mejor compatibilidad */
-    @supports (-webkit-background-clip: text) or (background-clip: text) {
-      .birthday-text {
-        background: linear-gradient(45deg, #ff007f, #ff4d9a, #ff80bf);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        color: transparent;
-      }
-    }
+        .invitation-card.flipped {
+            transform: rotateY(180deg);
+        }
 
-    .birthday-text::after {
-      content: "";
-      position: absolute;
-      bottom: -10px;
-      left: 0;
-      width: 100%;
-      height: 3px;
-      background: linear-gradient(to right, transparent, #ff007f, transparent);
-      border-radius: 50%;
-    }
+        .card-face {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
 
-    .prima-text {
-      font-family: 'Parisienne', cursive;
-      font-size: 3.2rem;
-      color: #d147a0;
-      text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.7);
-      letter-spacing: 2px;
-      display: block;
-      margin-top: 5px;
-      position: relative;
-    }
+        .card-back {
+            transform: rotateY(180deg);
+        }
 
-    .prima-text::before, .prima-text::after {
-      content: "✨";
-      margin: 0 15px;
-      font-size: 1.8rem;
-      vertical-align: middle;
-    }
-
-    .decoration {
-      position: absolute;
-      font-size: 2rem;
-      opacity: 0.7;
-      z-index: -1;
-    }
-
-    .decoration-1 {
-      top: -20px;
-      left: -30px;
-      animation: floatDecoration 8s infinite ease-in-out;
-      -webkit-animation: floatDecoration 8s infinite ease-in-out;
-    }
-
-    .decoration-2 {
-      top: -10px;
-      right: -40px;
-      animation: floatDecoration 10s infinite ease-in-out;
-      -webkit-animation: floatDecoration 10s infinite ease-in-out;
-    }
-
-    .decoration-3 {
-      bottom: -5px;
-      left: 20%;
-      animation: floatDecoration 9s infinite ease-in-out reverse;
-      -webkit-animation: floatDecoration 9s infinite ease-in-out reverse;
-    }
-
-    .decoration-4 {
-      bottom: 0;
-      right: 25%;
-      animation: floatDecoration 7s infinite ease-in-out reverse;
-      -webkit-animation: floatDecoration 7s infinite ease-in-out reverse;
-    }
-
-    @keyframes floatDecoration {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-15px) rotate(10deg); }
-    }
-    @-webkit-keyframes floatDecoration {
-      0%, 100% { -webkit-transform: translateY(0) rotate(0deg); }
-      50% { -webkit-transform: translateY(-15px) rotate(10deg); }
-    }
-
-    /* Pastel de 2 pisos */
-    .cake-container {
-      perspective: 300px;
-      -webkit-perspective: 300px;
-      margin: 20px auto 40px auto;
-      display: flex;
-      justify-content: center;
-      width: 100%;
-    }
-
-    .cake {
-      width: 160px;
-      position: relative;
-      cursor: pointer;
-      transition: transform 0.3s;
-      transform-style: preserve-3d;
-      -webkit-transform-style: preserve-3d;
-    }
-
-    .cake:hover {
-      transform: rotateY(15deg) scale(1.05);
-      -webkit-transform: rotateY(15deg) scale(1.05);
-    }
-
-    .tier {
-      margin: 0 auto;
-      border-radius: 0 0 20px 20px;
-      position: relative;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-    }
-
-    .tier1 {
-      width: 160px;
-      height: 60px;
-      background: linear-gradient(to right, #e83a9b, #d147a0);
-    }
-
-    .tier2 {
-      width: 120px;
-      height: 50px;
-      background: linear-gradient(to right, #ff9ecb, #ff85b8);
-      top: -10px;
-      position: relative;
-    }
-
-    .glaze {
-      position: absolute;
-      width: 100%;
-      height: 15px;
-      background: #fffbeb;
-      border-radius: 10px;
-      top: -10px;
-      left: 0;
-      box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .candle {
-      width: 14px;
-      height: 40px;
-      background: linear-gradient(to bottom, #f0f0f0, #d9d9d9);
-      position: absolute;
-      top: -60px;
-      left: 50%;
-      transform: translateX(-50%);
-      -webkit-transform: translateX(-50%);
-      border-radius: 4px;
-      transition: all 0.3s ease;
-    }
-
-    .flame {
-      width: 18px;
-      height: 18px;
-      background: radial-gradient(circle, #ffde82 10%, #ff9a3d 50%, #ff7a00 90%);
-      border-radius: 50% 50% 20% 20%;
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      -webkit-transform: translateX(-50%);
-      animation: flicker 0.4s infinite;
-      -webkit-animation: flicker 0.4s infinite;
-      box-shadow: 0 0 15px #ff7a00, 0 0 30px #ff9a3d;
-    }
-
-    @keyframes flicker {
-      0% { transform: translateX(-50%) scale(1); opacity: 1; }
-      50% { transform: translateX(-50%) scale(1.3) rotate(5deg); opacity: 0.8; }
-      100% { transform: translateX(-50%) scale(1); opacity: 1; }
-    }
-    @-webkit-keyframes flicker {
-      0% { -webkit-transform: translateX(-50%) scale(1); opacity: 1; }
-      50% { -webkit-transform: translateX(-50%) scale(1.3) rotate(5deg); opacity: 0.8; }
-      100% { -webkit-transform: translateX(-50%) scale(1); opacity: 1; }
-    }
-
-    button {
-      background: linear-gradient(to right, #e83a9b, #ff6b6b);
-      border: none;
-      color: white;
-      padding: 15px 30px;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-weight: bold;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-      margin-top: 20px;
-      font-size: 1.1rem;
-      -webkit-appearance: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    button:hover {
-      background: linear-gradient(to right, #ff6b6b, #e83a9b);
-      transform: translateY(-5px) scale(1.05);
-      -webkit-transform: translateY(-5px) scale(1.05);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Efecto de latido para el texto */
-    @keyframes heartbeat {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-    @-webkit-keyframes heartbeat {
-      0% { -webkit-transform: scale(1); }
-      50% { -webkit-transform: scale(1.1); }
-      100% { -webkit-transform: scale(1); }
-    }
-
-    .heartbeat {
-      animation: heartbeat 2s infinite;
-      -webkit-animation: heartbeat 2s infinite;
-      display: inline-block;
-    }
-
-    /* Animación de entrada */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @-webkit-keyframes fadeIn {
-      from { opacity: 0; -webkit-transform: translateY(20px); }
-      to { opacity: 1; -webkit-transform: translateY(0); }
-    }
-
-    .fade-in {
-      opacity: 0;
-      animation: fadeIn 1s ease-out forwards;
-      -webkit-animation: fadeIn 1s ease-out forwards;
-    }
-
-    .delay-1 { animation-delay: 0.3s; -webkit-animation-delay: 0.3s; }
-    .delay-2 { animation-delay: 0.6s; -webkit-animation-delay: 0.6s; }
-    .delay-3 { animation-delay: 0.9s; -webkit-animation-delay: 0.9s; }
-
-    .birthday-wish {
-      margin-top: 20px;
-      font-size: 1.6rem;
-      text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
-      padding: 20px;
-      line-height: 1.6;
-      max-width: 500px;
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      font-weight: bold;
-      font-style: italic;
-      color: #7c2d5f;
-    }
-
-    /* Soporte para backdrop-filter */
-    @supports (backdrop-filter: blur(5px)) or (-webkit-backdrop-filter: blur(5px)) {
-      .birthday-wish {
-        -webkit-backdrop-filter: blur(5px);
-        backdrop-filter: blur(5px);
-      }
-    }
-
-    /* Flores decorativas */
-    .flower {
-      position: absolute;
-      font-size: 24px;
-      opacity: 0.7;
-      z-index: -1;
-      animation: floatFlower 15s infinite linear;
-      -webkit-animation: floatFlower 15s infinite linear;
-    }
-
-    @keyframes floatFlower {
-      0% {
-        transform: translateY(100vh) rotate(0deg);
-        opacity: 0.7;
-      }
-      100% {
-        transform: translateY(-100px) rotate(360deg);
-        opacity: 0;
-      }
-    }
-    @-webkit-keyframes floatFlower {
-      0% {
-        -webkit-transform: translateY(100vh) rotate(0deg);
-        opacity: 0.7;
-      }
-      100% {
-        -webkit-transform: translateY(-100px) rotate(360deg);
-        opacity: 0;
-      }
-    }
-
-    /* Notificación de sonido */
-    .sound-notification {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 10px 15px;
-      border-radius: 50px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      z-index: 1000;
-      transform: translateY(150%);
-      transition: transform 0.5s ease;
-      -webkit-transition: transform 0.5s ease;
-    }
-
-    .sound-notification.show {
-      transform: translateY(0);
-      -webkit-transform: translateY(0);
-    }
-
-    .sound-notification button {
-      margin: 0;
-      padding: 5px 10px;
-      font-size: 0.8rem;
-    }
-
-    /* Mensaje de error para confeti */
-    .confetti-error {
-      display: none;
-      margin-top: 15px;
-      color: #7c2d5f;
-      font-size: 0.9rem;
-    }
-
-    /* Responsive */
-    @media (max-width: 600px) {
-      .birthday-text {
-        font-size: 3.2rem;
-      }
-      
-      .prima-text {
-        font-size: 2.5rem;
-      }
-      
-      .cake {
-        transform: scale(0.9);
-        -webkit-transform: scale(0.9);
-      }
-      
-      .birthday-wish {
-        font-size: 1.3rem;
-        padding: 15px;
-      }
-      
-      .decoration {
-        display: none;
-      }
-      
-      .sound-notification {
-        bottom: 10px;
-        right: 10px;
-        left: 10px;
-        text-align: center;
-        flex-direction: column;
-        gap: 5px;
-      }
-      
-      button {
-        padding: 12px 25px;
-      }
-    }
-    
-    /* Solución para el problema de :hover en dispositivos táctiles */
-    @media (hover: none) {
-      .cake:hover {
-        transform: none;
-        -webkit-transform: none;
-      }
-      
-      button:hover {
-        transform: none;
-        -webkit-transform: none;
-        background: linear-gradient(to right, #e83a9b, #ff6b6b);
-      }
-    }
-  </style>
+        /* Confetti Canvas */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+    </style>
 </head>
-<body>
-  <!-- Notificación de sonido -->
-  <div class="sound-notification" id="soundNotification">
-    <span>¿Quieres activar los sonidos para una mejor experiencia?</span>
-    <button id="enableSound">Activar sonidos</button>
-  </div>
+<body class="min-h-screen flex items-center justify-center relative selection:bg-green-500 selection:text-white">
 
-  <!-- Estrellas -->
-  <script>
-    // Crear estrellas de forma compatible
-    document.addEventListener('DOMContentLoaded', function() {
-      for(let i=0; i<100; i++) {
-        const star = document.createElement('div');
-        star.classList.add('star');
-        star.style.top = Math.random() * window.innerHeight + 'px';
-        star.style.left = Math.random() * window.innerWidth + 'px';
-        star.style.animationDuration = (2 + Math.random()*3) + 's';
-        document.body.appendChild(star);
-      }
-
-      // Agregar flores flotantes
-      for(let i=0; i<15; i++) {
-        const flower = document.createElement('div');
-        flower.classList.add('flower');
-        flower.innerHTML = '🌸';
-        flower.style.left = Math.random() * window.innerWidth + 'px';
-        flower.style.animationDuration = (10 + Math.random()*20) + 's';
-        flower.style.animationDelay = Math.random()*10 + 's';
-        flower.style.fontSize = (15 + Math.random()*20) + 'px';
-        document.body.appendChild(flower);
-      }
-    });
-  </script>
-
-  <div class="container">
-    <div class="header">
-      <div class="birthday-title fade-in">
-        <div class="decoration decoration-1">🎀</div>
-        <div class="decoration decoration-2">🎊</div>
-        <div class="birthday-text">Feliz cumpleaños</div>
-        <span class="prima-text">Prima</span>
-        <div class="decoration decoration-3">💖</div>
-        <div class="decoration decoration-4">🎁</div>
-      </div>
+    <!-- Background Elements -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <!-- Sun/Moon -->
+        <div class="absolute top-10 right-10 w-32 h-32 bg-yellow-300 rounded-full blur-2xl opacity-60 animate-pulse"></div>
+        <!-- Mountains -->
+        <div class="absolute bottom-0 w-full h-64 bg-green-900 opacity-30" style="clip-path: polygon(0% 100%, 0% 40%, 20% 60%, 40% 30%, 60% 50%, 80% 20%, 100% 40%, 100% 100%);"></div>
+        <div class="absolute bottom-0 w-full h-48 bg-green-800 opacity-40" style="clip-path: polygon(0% 100%, 0% 60%, 30% 40%, 50% 70%, 70% 50%, 100% 80%, 100% 100%);"></div>
     </div>
 
-    <div class="cake-container fade-in delay-2">
-      <div class="cake">
-        <div class="tier tier2">
-          <div class="glaze"></div>
-          <div class="candle">
-            <div class="flame"></div>
-          </div>
-        </div>
-        <div class="tier tier1">
-          <div class="glaze"></div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="birthday-wish fade-in delay-3">
-      <p>Eres una persona muy especial, que merece todo lo mejor</p>
-    </div>
-    
-    <button id="surpriseBtn" class="fade-in delay-3">Sorpresa Especial</button>
-    <p class="confetti-error" id="confettiError">Si no ves los efectos de confeti, intenta actualizar la página.</p>
-  </div>
+    <canvas id="confetti-canvas"></canvas>
 
-  <script>
-    // Solución para problemas de audio en iOS
-    let audioContext;
-    
-    // Función para inicializar el contexto de audio
-    function initAudioContext() {
-      if (!audioContext) {
-        try {
-          // Crear contexto de audio (compatible con iOS)
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          audioContext = new AudioContext();
-          
-          // Reanudar el contexto si está suspendido (requerido por iOS)
-          if (audioContext.state === 'suspended') {
-            audioContext.resume();
-          }
-        } catch (e) {
-          console.error('Error inicializando audio:', e);
-        }
-      }
-    }
-    
-    // Sonidos reales (usando URLs externas por simplicidad)
-    const candleBlowSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-blowing-candle-3161.mp3');
-    const celebrationSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-fun-party-103.mp3');
-    
-    // Configurar los sonidos
-    [candleBlowSound, celebrationSound].forEach(sound => {
-      sound.volume = 0.6;
-      sound.preload = 'auto';
-    });
-
-    let soundEnabled = false; // Inicialmente desactivado hasta que el usuario decida
-    let candlesBlown = false;
-
-    // Mostrar notificación de sonido después de un retraso
-    setTimeout(() => {
-      const notification = document.getElementById('soundNotification');
-      if (notification && !localStorage.getItem('soundPreferenceSet')) {
-        notification.classList.add('show');
-      }
-    }, 3000);
-
-    // Configurar confeti con la biblioteca
-    function fireConfetti() {
-      // Verificar si la biblioteca de confeti está cargada
-      if (typeof confetti === 'function') {
-        try {
-          confetti({
-            particleCount: 150,
-            spread: 80,
-            origin: { y: 0.6 },
-            colors: ['#ff6b6b', '#ffd93d', '#6bcbef', '#845ef7', '#34d399', '#ff9ecb', '#d147a0']
-          });
-        } catch (e) {
-          console.error('Error con confeti:', e);
-          document.getElementById('confettiError').style.display = 'block';
-        }
-      } else {
-        document.getElementById('confettiError').style.display = 'block';
-      }
-    }
-
-    function fireWorks() {
-      // Verificar si la biblioteca de confeti está cargada
-      if (typeof confetti !== 'function') {
-        document.getElementById('confettiError').style.display = 'block';
-        return;
-      }
-      
-      try {
-        const duration = 5 * 1000;
-        const animationEnd = Date.now() + duration;
-        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-        function randomInRange(min, max) {
-          return Math.random() * (max - min) + min;
-        }
-
-        const interval = setInterval(function() {
-          const timeLeft = animationEnd - Date.now();
-
-          if (timeLeft <= 0) {
-            return clearInterval(interval);
-          }
-
-          const particleCount = 50 * (timeLeft / duration);
-          
-          // Disparar desde la izquierda
-          confetti(Object.assign({}, defaults, {
-            particleCount,
-            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-          }));
-          
-          // Disparar desde la derecha
-          confetti(Object.assign({}, defaults, {
-            particleCount,
-            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-          }));
-        }, 250);
-      } catch (e) {
-        console.error('Error con confeti:', e);
-        document.getElementById('confettiError').style.display = 'block';
-      }
-    }
-
-    // Función para reproducir sonido con manejo de errores
-    function playSound(sound) {
-      if (!soundEnabled) return;
-      
-      try {
-        // Inicializar contexto de audio si es necesario
-        initAudioContext();
-        
-        sound.currentTime = 0;
-        const playPromise = sound.play();
-        
-        if (playPromise !== undefined) {
-          playPromise.catch(e => {
-            console.log("Error reproduciendo sonido:", e);
-            // Si falla, desactivar sonidos para futuros intentos
-            soundEnabled = false;
-          });
-        }
-      } catch (e) {
-        console.log("Error con el sonido:", e);
-        soundEnabled = false;
-      }
-    }
-
-    // Esperar a que el DOM esté completamente cargado
-    document.addEventListener('DOMContentLoaded', function() {
-      const cake = document.querySelector('.cake');
-      const surpriseBtn = document.getElementById('surpriseBtn');
-      const enableSoundBtn = document.getElementById('enableSound');
-      
-      // Configurar botón de activar sonido
-      if (enableSoundBtn) {
-        enableSoundBtn.addEventListener('click', function() {
-          soundEnabled = true;
-          localStorage.setItem('soundPreferenceSet', 'true');
-          document.getElementById('soundNotification').classList.remove('show');
-          
-          // Inicializar el contexto de audio
-          initAudioContext();
-          
-          // Probar reproduciendo un sonido breve
-          playSound(celebrationSound);
-          setTimeout(() => {
-            celebrationSound.pause();
-            celebrationSound.currentTime = 0;
-          }, 500);
-        });
-      }
-      
-      // Solución para el evento de clic en iOS
-      if (cake) {
-        cake.addEventListener('click', function() {
-          const flame = document.querySelector('.flame');
-          
-          if (flame.style.visibility !== 'hidden') {
-            playSound(candleBlowSound);
+    <div class="card-container w-full max-w-md p-4 z-10">
+        <div id="card" class="invitation-card relative w-full aspect-[3/5] cursor-pointer group">
             
-            flame.style.visibility = 'hidden';
-            document.querySelector('.candle').style.height = '20px';
+            <!-- FRONT OF CARD -->
+            <div class="card-face absolute inset-0 w-full h-full bg-amber-50 rounded-3xl shadow-2xl border-8 border-amber-200 overflow-hidden flex flex-col">
+                <!-- Texture -->
+                <div class="absolute inset-0 texture-overlay opacity-50"></div>
+                
+                <!-- Decorative Border -->
+                <div class="absolute inset-2 border-4 border-dashed border-green-600 rounded-2xl opacity-30 pointer-events-none"></div>
+
+                <!-- Header -->
+                <div class="relative pt-8 text-center z-10">
+                    <h2 class="text-green-700 text-xl font-bold tracking-widest uppercase mb-2 opacity-80">Estás Invitado</h2>
+                    <div class="flex justify-center space-x-2 mb-4">
+                        <span class="text-2xl animate-bounce" style="animation-delay: 0s">🦕</span>
+                        <span class="text-2xl animate-bounce" style="animation-delay: 0.2s">🌿</span>
+                        <span class="text-2xl animate-bounce" style="animation-delay: 0.4s">🦖</span>
+                    </div>
+                </div>
+
+                <!-- Main Visual: Dinosaur -->
+                <div class="flex-grow flex items-center justify-center relative z-10">
+                    <!-- Dino SVG -->
+                    <svg class="w-64 h-64 animate-float drop-shadow-2xl" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Body -->
+                        <path d="M40 140 C 20 140, 20 100, 50 90 C 60 50, 100 40, 130 60 C 150 70, 160 90, 150 110 C 160 130, 140 150, 110 150 L 40 150 Z" fill="#4ADE80" stroke="#166534" stroke-width="4"/>
+                        <!-- Belly -->
+                        <path d="M60 140 C 50 140, 50 110, 70 100 C 80 80, 110 80, 120 100 C 130 110, 120 140, 100 140 Z" fill="#86EFAC" opacity="0.6"/>
+                        <!-- Eye -->
+                        <circle cx="110" cy="75" r="5" fill="white"/>
+                        <circle cx="112" cy="75" r="2" fill="black"/>
+                        <!-- Pupil highlight -->
+                        <circle cx="113" cy="74" r="1" fill="white"/>
+                        <!-- Smile -->
+                        <path d="M105 85 Q 115 90 125 85" stroke="#166534" stroke-width="3" stroke-linecap="round" fill="none"/>
+                        <!-- Spikes -->
+                        <path d="M60 50 L 55 30 L 70 45 Z" fill="#22C55E"/>
+                        <path d="M80 42 L 80 20 L 95 40 Z" fill="#22C55E"/>
+                        <path d="M100 45 L 110 25 L 120 48 Z" fill="#22C55E"/>
+                        <!-- Arm -->
+                        <path d="M100 110 Q 90 120 80 115" stroke="#166534" stroke-width="4" stroke-linecap="round" fill="none"/>
+                        <!-- Legs -->
+                        <path d="M70 150 L 70 170 L 50 170" stroke="#166534" stroke-width="5" stroke-linecap="round" fill="none"/>
+                        <path d="M110 150 L 110 170 L 130 170" stroke="#166534" stroke-width="5" stroke-linecap="round" fill="none"/>
+                    </svg>
+                    
+                    <!-- Speech Bubble -->
+                    <div class="absolute top-10 right-4 bg-white px-4 py-2 rounded-xl rounded-bl-none shadow-lg border-2 border-green-200 animate-wiggle">
+                        <p class="text-green-800 font-bold text-sm">¡ROAR!</p>
+                    </div>
+                </div>
+
+                <!-- Name -->
+                <div class="relative z-10 text-center pb-12">
+                    <h1 class="font-display text-6xl text-green-600 drop-shadow-md transform -rotate-2">Humber</h1>
+                    <p class="text-amber-700 font-bold mt-2 text-lg">Cumple Años</p>
+                </div>
+
+                <!-- Click Hint -->
+                <div class="absolute bottom-4 w-full text-center text-amber-800/50 text-xs font-bold uppercase tracking-widest animate-pulse">
+                    Toca para abrir
+                </div>
+            </div>
+
+            <!-- BACK OF CARD -->
+            <div class="card-back card-face absolute inset-0 w-full h-full bg-green-50 rounded-3xl shadow-2xl border-8 border-green-200 overflow-hidden flex flex-col p-6">
+                 <!-- Texture -->
+                 <div class="absolute inset-0 texture-overlay opacity-50"></div>
+
+                 <!-- Header Back -->
+                 <div class="text-center mb-6 relative z-10">
+                     <div class="inline-block bg-green-600 text-white px-4 py-1 rounded-full text-sm font-bold tracking-wider shadow-md mb-2">DETALLES</div>
+                     <h3 class="font-display text-3xl text-green-800">¡Nos vemos!</h3>
+                 </div>
+
+                 <!-- Content -->
+                 <div class="flex-grow flex flex-col justify-center space-y-6 relative z-10">
+                     
+                     <!-- Date Block -->
+                     <div class="bg-white/80 backdrop-blur-sm p-4 rounded-2xl border-2 border-green-100 shadow-sm transform hover:scale-105 transition-transform duration-300">
+                         <div class="flex items-center space-x-3">
+                             <div class="bg-green-100 p-2 rounded-full text-2xl">📅</div>
+                             <div>
+                                 <p class="text-xs text-green-600 font-bold uppercase">Fecha</p>
+                                 <p class="text-xl font-bold text-gray-800">31 de Febrero</p>
+                                 <p class="text-xs text-gray-500">5:00 PM</p>
+                             </div>
+                         </div>
+                     </div>
+
+                     <!-- Location Block -->
+                     <div class="bg-white/80 backdrop-blur-sm p-4 rounded-2xl border-2 border-green-100 shadow-sm transform hover:scale-105 transition-transform duration-300">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-amber-100 p-2 rounded-full text-2xl">📍</div>
+                            <div>
+                                <p class="text-xs text-amber-600 font-bold uppercase">Ubicación</p>
+                                <p class="text-lg font-bold text-gray-800 leading-tight">José Robledo 103# A</p>
+                                <a href="https://www.google.com/maps/place/C.+Jos%C3%A9+Robledo+Ram%C3%ADrez+103,+Revoluci%C3%B3n,+47540+Ojuelos+de+Jalisco,+Jal./@21.8716232,-101.5963979,18.2z/data=!4m6!3m5!1s0x842a699fb310fe0f:0x1941d59a556ebbfe!8m2!3d21.872167!4d-101.5958394!16s%2Fg%2F11c24b7x93?entry=ttu&g_ep=EgoyMDI2MDEyNS4wIKXMDSoKLDEwMDc5MjA3M0gBUAM%3D" target="_blank" class="text-xs text-blue-500 hover:underline mt-1 inline-block">Ver en mapa &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RSVP Block -->
+                    <div class="text-center pt-2">
+                      <!--  <p class="text-green-800 font-semibold text-sm mb-2">¿Vienes a la aventura jurásica?</p>
+                        <button onclick="event.stopPropagation(); alert('¡Gracias por confirmar! 🦖');" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transform active:scale-95 transition-all border-b-4 border-green-700">
+                            Confirmar Asistencia
+                        </button> -->
+                    </div>
+
+                 </div>
+
+                 <!-- Footer Decoration -->
+                 <div class="mt-auto flex justify-between items-end opacity-60">
+                     <svg class="w-12 h-12 text-green-300 animate-leaf" fill="currentColor" viewBox="0 0 24 24"><path d="M17,8C8,10,5.9,16.17,3.82,21.34L5.71,22l1-2.3A4.49,4.49,0,0,0,8,20C19,20,22,3,22,3,21,5,14,5.25,9,6.25S2,11.5,2,13.5a6.22,6.22,0,0,0,1.75,3.75C7,13,11,9,17,8Z"/></svg>
+                     <svg class="w-10 h-10 text-green-300 animate-leaf" style="animation-delay: 1s" fill="currentColor" viewBox="0 0 24 24"><path d="M17,8C8,10,5.9,16.17,3.82,21.34L5.71,22l1-2.3A4.49,4.49,0,0,0,8,20C19,20,22,3,22,3,21,5,14,5.25,9,6.25S2,11.5,2,13.5a6.22,6.22,0,0,0,1.75,3.75C7,13,11,9,17,8Z"/></svg>
+                 </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Card Flip Logic
+        const card = document.getElementById('card');
+        let isFlipped = false;
+
+        card.addEventListener('click', () => {
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                card.classList.add('flipped');
+                startConfetti();
+            } else {
+                card.classList.remove('flipped');
+            }
+        });
+
+        // Confetti Logic
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let animationId;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = -10;
+                this.size = Math.random() * 10 + 5;
+                this.speedY = Math.random() * 3 + 2;
+                this.speedX = Math.random() * 2 - 1;
+                this.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = Math.random() * 5 - 2.5;
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.rotation += this.rotationSpeed;
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation * Math.PI / 180);
+                ctx.fillStyle = this.color;
+                ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        function startConfetti() {
+            // Reset particles
+            particles = [];
+            for (let i = 0; i < 100; i++) {
+                particles.push(new Particle());
+            }
             
-            // Disparar mucho confeti al soplar la vela
-            if (!candlesBlown) {
-              fireWorks();
-              playSound(celebrationSound);
-              candlesBlown = true;
-            }
-          } else {
-            flame.style.visibility = 'visible';
-            document.querySelector('.candle').style.height = '40px';
-          }
-        });
-        
-        // Agregar evento táctil para dispositivos móviles
-        cake.addEventListener('touchstart', function(e) {
-          e.preventDefault();
-          this.style.transform = 'rotateY(15deg) scale(1.05)';
-        }, { passive: false });
-        
-        cake.addEventListener('touchend', function() {
-          this.style.transform = '';
-        });
-      }
-      
-      if (surpriseBtn) {
-        surpriseBtn.addEventListener('click', function() {
-          fireWorks();
-          playSound(celebrationSound);
-          
-          // Efecto especial para el botón de sorpresa
-          if (typeof confetti === 'function') {
-            try {
-              confetti({
-                particleCount: 300,
-                angle: 60,
-                spread: 80,
-                origin: { x: 0 }
-              });
-              
-              confetti({
-                particleCount: 300,
-                angle: 120,
-                spread: 80,
-                origin: { x: 1 }
-              });
-            } catch (e) {
-              console.error('Error con confeti:', e);
-              document.getElementById('confettiError').style.display = 'block';
-            }
-          }
+            if (animationId) cancelAnimationFrame(animationId);
+            animateConfetti();
+            
+            // Stop after 3 seconds
+            setTimeout(() => {
+                cancelAnimationFrame(animationId);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }, 3000);
+        }
 
-          // Agregar más flores
-          for(let i=0; i<10; i++) {
-            const flower = document.createElement('div');
-            flower.classList.add('flower');
-            flower.innerHTML = '🌸';
-            flower.style.left = Math.random() * window.innerWidth + 'px';
-            flower.style.animationDuration = (8 + Math.random()*15) + 's';
-            flower.style.fontSize = (20 + Math.random()*25) + 'px';
-            document.body.appendChild(flower);
-          }
-        });
-      }
-
-      // Iniciar con un poco de confeti después de un breve retraso
-      setTimeout(function() {
-        fireConfetti();
-      }, 1500);
-      
-      // Solución para el problema de reproducción automática en iOS
-      document.body.addEventListener('touchstart', function() {
-        initAudioContext();
-      }, { once: true });
-    });
-  </script>
+        function animateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, index) => {
+                p.update();
+                p.draw();
+                if (p.y > canvas.height) {
+                    particles.splice(index, 1);
+                }
+            });
+            if (particles.length > 0) {
+                animationId = requestAnimationFrame(animateConfetti);
+            }
+        }
+    </script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Invitación de Cumpleaños - Humberto</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
@@ -11,6 +11,12 @@
             font-family: 'Quicksand', sans-serif;
             background-color: #1a202c;
             overflow-x: hidden;
+            /* Prevent bounce on iOS */
+            position: fixed;
+            height: 100%;
+            width: 100%;
+            overscroll-behavior: none;
+            -webkit-overflow-scrolling: touch;
         }
         
         .font-display {
@@ -28,11 +34,6 @@
             50% { transform: rotate(3deg); }
         }
 
-        @keyframes stomp {
-            0%, 100% { transform: translateY(0) scaleY(1); }
-            50% { transform: translateY(5px) scaleY(0.95); }
-        }
-
         @keyframes leaf-sway {
             0%, 100% { transform: rotate(-5deg); }
             50% { transform: rotate(5deg); }
@@ -40,7 +41,6 @@
 
         .animate-float { animation: float 6s ease-in-out infinite; }
         .animate-wiggle { animation: wiggle 3s ease-in-out infinite; }
-        .animate-stomp { animation: stomp 0.5s ease-in-out infinite; }
         .animate-leaf { animation: leaf-sway 4s ease-in-out infinite; }
 
         /* Texture overlay */
@@ -51,11 +51,20 @@
         /* 3D Card Effect */
         .card-container {
             perspective: 1000px;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
         }
         
         .invitation-card {
             transform-style: preserve-3d;
             transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%;
+            max-width: 320px;
+            height: 85vh;
+            max-height: 600px;
         }
 
         .invitation-card.flipped {
@@ -65,10 +74,32 @@
         .card-face {
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
         }
 
         .card-back {
             transform: rotateY(180deg);
+        }
+
+        /* Responsive Typography */
+        .responsive-text {
+            font-size: clamp(2.5rem, 8vw, 3.5rem);
+        }
+
+        .responsive-date {
+            font-size: clamp(1.25rem, 4vw, 1.5rem);
+        }
+
+        /* Mobile Optimizations */
+        .mobile-padding {
+            padding: 0.75rem;
+        }
+
+        .mobile-button {
+            min-height: 44px;
+            font-size: 16px; /* Prevent zoom on iOS */
         }
 
         /* Confetti Canvas */
@@ -81,26 +112,40 @@
             pointer-events: none;
             z-index: 50;
         }
+
+        /* Safe area for notched devices */
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top, 1rem);
+        }
+
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom, 1rem);
+        }
+
+        /* Touch feedback */
+        .touch-feedback:active {
+            transform: scale(0.98);
+        }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center relative selection:bg-green-500 selection:text-white">
+<body class="min-h-screen relative selection:bg-green-500 selection:text-white">
 
     <!-- Background Elements -->
     <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
         <!-- Sun/Moon -->
-        <div class="absolute top-10 right-10 w-32 h-32 bg-yellow-300 rounded-full blur-2xl opacity-60 animate-pulse"></div>
+        <div class="absolute top-10 right-4 sm:right-10 w-24 h-24 sm:w-32 sm:h-32 bg-yellow-300 rounded-full blur-2xl opacity-60 animate-pulse"></div>
         <!-- Mountains -->
-        <div class="absolute bottom-0 w-full h-64 bg-green-900 opacity-30" style="clip-path: polygon(0% 100%, 0% 40%, 20% 60%, 40% 30%, 60% 50%, 80% 20%, 100% 40%, 100% 100%);"></div>
-        <div class="absolute bottom-0 w-full h-48 bg-green-800 opacity-40" style="clip-path: polygon(0% 100%, 0% 60%, 30% 40%, 50% 70%, 70% 50%, 100% 80%, 100% 100%);"></div>
+        <div class="absolute bottom-0 w-full h-48 sm:h-64 bg-green-900 opacity-30" style="clip-path: polygon(0% 100%, 0% 40%, 20% 60%, 40% 30%, 60% 50%, 80% 20%, 100% 40%, 100% 100%);"></div>
+        <div class="absolute bottom-0 w-full h-32 sm:h-48 bg-green-800 opacity-40" style="clip-path: polygon(0% 100%, 0% 60%, 30% 40%, 50% 70%, 70% 50%, 100% 80%, 100% 100%);"></div>
     </div>
 
     <canvas id="confetti-canvas"></canvas>
 
-    <div class="card-container w-full max-w-md p-4 z-10">
-        <div id="card" class="invitation-card relative w-full aspect-[3/5] cursor-pointer group">
+    <div class="card-container safe-area-top safe-area-bottom">
+        <div id="card" class="invitation-card relative cursor-pointer group touch-feedback">
             
             <!-- FRONT OF CARD -->
-            <div class="card-face absolute inset-0 w-full h-full bg-amber-50 rounded-3xl shadow-2xl border-8 border-amber-200 overflow-hidden flex flex-col">
+            <div class="card-face absolute inset-0 w-full h-full bg-amber-50 shadow-2xl border-8 border-amber-200 overflow-hidden flex flex-col">
                 <!-- Texture -->
                 <div class="absolute inset-0 texture-overlay opacity-50"></div>
                 
@@ -108,19 +153,19 @@
                 <div class="absolute inset-2 border-4 border-dashed border-green-600 rounded-2xl opacity-30 pointer-events-none"></div>
 
                 <!-- Header -->
-                <div class="relative pt-8 text-center z-10">
-                    <h2 class="text-green-700 text-xl font-bold tracking-widest uppercase mb-2 opacity-80">Estás Invitado</h2>
-                    <div class="flex justify-center space-x-2 mb-4">
-                        <span class="text-2xl animate-bounce" style="animation-delay: 0s">🦕</span>
-                        <span class="text-2xl animate-bounce" style="animation-delay: 0.2s">🌿</span>
-                        <span class="text-2xl animate-bounce" style="animation-delay: 0.4s">🦖</span>
+                <div class="relative pt-6 sm:pt-8 text-center z-10">
+                    <h2 class="text-green-700 text-lg sm:text-xl font-bold tracking-widest uppercase mb-2 opacity-80">Estás Invitado</h2>
+                    <div class="flex justify-center space-x-2 mb-3 sm:mb-4">
+                        <span class="text-xl sm:text-2xl animate-bounce" style="animation-delay: 0s">🦕</span>
+                        <span class="text-xl sm:text-2xl animate-bounce" style="animation-delay: 0.2s">🌿</span>
+                        <span class="text-xl sm:text-2xl animate-bounce" style="animation-delay: 0.4s">🦖</span>
                     </div>
                 </div>
 
                 <!-- Main Visual: Dinosaur -->
                 <div class="flex-grow flex items-center justify-center relative z-10">
-                    <!-- Dino SVG -->
-                    <svg class="w-64 h-64 animate-float drop-shadow-2xl" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Dino SVG (Responsive) -->
+                    <svg class="w-48 h-48 sm:w-64 sm:h-64 animate-float drop-shadow-2xl" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <!-- Body -->
                         <path d="M40 140 C 20 140, 20 100, 50 90 C 60 50, 100 40, 130 60 C 150 70, 160 90, 150 110 C 160 130, 140 150, 110 150 L 40 150 Z" fill="#4ADE80" stroke="#166534" stroke-width="4"/>
                         <!-- Belly -->
@@ -144,15 +189,15 @@
                     </svg>
                     
                     <!-- Speech Bubble -->
-                    <div class="absolute top-10 right-4 bg-white px-4 py-2 rounded-xl rounded-bl-none shadow-lg border-2 border-green-200 animate-wiggle">
-                        <p class="text-green-800 font-bold text-sm">¡ROAR!</p>
+                    <div class="absolute top-8 right-2 sm:top-10 sm:right-4 bg-white px-3 py-2 rounded-xl rounded-bl-none shadow-lg border-2 border-green-200 animate-wiggle">
+                        <p class="text-green-800 font-bold text-xs sm:text-sm">¡ROAR!</p>
                     </div>
                 </div>
 
                 <!-- Name -->
-                <div class="relative z-10 text-center pb-12">
-                    <h1 class="font-display text-6xl text-green-600 drop-shadow-md transform -rotate-2">Humber</h1>
-                    <p class="text-amber-700 font-bold mt-2 text-lg">Cumple Años</p>
+                <div class="relative z-10 text-center pb-8 sm:pb-12">
+                    <h1 class="font-display responsive-text text-green-600 drop-shadow-md transform -rotate-2">Humberto</h1>
+                    <p class="text-amber-700 font-bold mt-1 sm:mt-2 text-base sm:text-lg">Cumple Años</p>
                 </div>
 
                 <!-- Click Hint -->
@@ -162,57 +207,57 @@
             </div>
 
             <!-- BACK OF CARD -->
-            <div class="card-back card-face absolute inset-0 w-full h-full bg-green-50 rounded-3xl shadow-2xl border-8 border-green-200 overflow-hidden flex flex-col p-6">
+            <div class="card-back card-face absolute inset-0 w-full h-full bg-green-50 rounded-3xl shadow-2xl border-8 border-green-200 overflow-hidden flex flex-col p-4 sm:p-6">
                  <!-- Texture -->
                  <div class="absolute inset-0 texture-overlay opacity-50"></div>
 
                  <!-- Header Back -->
-                 <div class="text-center mb-6 relative z-10">
-                     <div class="inline-block bg-green-600 text-white px-4 py-1 rounded-full text-sm font-bold tracking-wider shadow-md mb-2">DETALLES</div>
-                     <h3 class="font-display text-3xl text-green-800">¡Nos vemos!</h3>
+                 <div class="text-center mb-4 sm:mb-6 relative z-10">
+                     <div class="inline-block bg-green-600 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-bold tracking-wider shadow-md mb-1 sm:mb-2">DETALLES</div>
+                     <h3 class="font-display text-2xl sm:text-3xl text-green-800">¡Nos vemos!</h3>
                  </div>
 
                  <!-- Content -->
-                 <div class="flex-grow flex flex-col justify-center space-y-6 relative z-10">
+                 <div class="flex-grow flex flex-col justify-center space-y-4 sm:space-y-6 relative z-10">
                      
                      <!-- Date Block -->
-                     <div class="bg-white/80 backdrop-blur-sm p-4 rounded-2xl border-2 border-green-100 shadow-sm transform hover:scale-105 transition-transform duration-300">
+                     <div class="bg-white/80 backdrop-blur-sm p-3 sm:p-4 rounded-2xl border-2 border-green-100 shadow-sm transform hover:scale-105 transition-transform duration-300">
                          <div class="flex items-center space-x-3">
-                             <div class="bg-green-100 p-2 rounded-full text-2xl">📅</div>
+                             <div class="bg-green-100 p-2 rounded-full text-xl sm:text-2xl">📅</div>
                              <div>
                                  <p class="text-xs text-green-600 font-bold uppercase">Fecha</p>
-                                 <p class="text-xl font-bold text-gray-800">31 de Febrero</p>
-                                 <p class="text-xs text-gray-500">5:00 PM</p>
+                                 <p class="responsive-date font-bold text-gray-800">31 de Febrero</p>
+                                 <p class="text-xs text-gray-500">¡Marca tu calendario!</p>
                              </div>
                          </div>
                      </div>
 
                      <!-- Location Block -->
-                     <div class="bg-white/80 backdrop-blur-sm p-4 rounded-2xl border-2 border-green-100 shadow-sm transform hover:scale-105 transition-transform duration-300">
+                     <div class="bg-white/80 backdrop-blur-sm p-3 sm:p-4 rounded-2xl border-2 border-green-100 shadow-sm transform hover:scale-105 transition-transform duration-300">
                         <div class="flex items-center space-x-3">
-                            <div class="bg-amber-100 p-2 rounded-full text-2xl">📍</div>
+                            <div class="bg-amber-100 p-2 rounded-full text-xl sm:text-2xl">📍</div>
                             <div>
                                 <p class="text-xs text-amber-600 font-bold uppercase">Ubicación</p>
-                                <p class="text-lg font-bold text-gray-800 leading-tight">José Robledo 103# A</p>
-                                <a href="https://www.google.com/maps/place/C.+Jos%C3%A9+Robledo+Ram%C3%ADrez+103,+Revoluci%C3%B3n,+47540+Ojuelos+de+Jalisco,+Jal./@21.8716232,-101.5963979,18.2z/data=!4m6!3m5!1s0x842a699fb310fe0f:0x1941d59a556ebbfe!8m2!3d21.872167!4d-101.5958394!16s%2Fg%2F11c24b7x93?entry=ttu&g_ep=EgoyMDI2MDEyNS4wIKXMDSoKLDEwMDc5MjA3M0gBUAM%3D" target="_blank" class="text-xs text-blue-500 hover:underline mt-1 inline-block">Ver en mapa &rarr;</a>
+                                <p class="text-base sm:text-lg font-bold text-gray-800 leading-tight">José Robledo 103</p>
+                                <a href="https://www.google.com/maps/search/?api=1&query=José+Robledo+103" target="_blank" class="text-xs text-blue-500 hover:underline mt-1 inline-block">Ver en mapa &rarr;</a>
                             </div>
                         </div>
                     </div>
 
                     <!-- RSVP Block -->
                     <div class="text-center pt-2">
-                      <!--  <p class="text-green-800 font-semibold text-sm mb-2">¿Vienes a la aventura jurásica?</p>
-                        <button onclick="event.stopPropagation(); alert('¡Gracias por confirmar! 🦖');" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transform active:scale-95 transition-all border-b-4 border-green-700">
+                        <p class="text-green-800 font-semibold text-sm mb-2">¿Vienes a la aventura jurásica?</p>
+                        <button onclick="event.stopPropagation(); alert('¡Gracias por confirmar! 🦖');" class="mobile-button bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 sm:px-6 rounded-full shadow-lg transform active:scale-95 transition-all border-b-4 border-green-700">
                             Confirmar Asistencia
-                        </button> -->
+                        </button>
                     </div>
 
                  </div>
 
                  <!-- Footer Decoration -->
                  <div class="mt-auto flex justify-between items-end opacity-60">
-                     <svg class="w-12 h-12 text-green-300 animate-leaf" fill="currentColor" viewBox="0 0 24 24"><path d="M17,8C8,10,5.9,16.17,3.82,21.34L5.71,22l1-2.3A4.49,4.49,0,0,0,8,20C19,20,22,3,22,3,21,5,14,5.25,9,6.25S2,11.5,2,13.5a6.22,6.22,0,0,0,1.75,3.75C7,13,11,9,17,8Z"/></svg>
-                     <svg class="w-10 h-10 text-green-300 animate-leaf" style="animation-delay: 1s" fill="currentColor" viewBox="0 0 24 24"><path d="M17,8C8,10,5.9,16.17,3.82,21.34L5.71,22l1-2.3A4.49,4.49,0,0,0,8,20C19,20,22,3,22,3,21,5,14,5.25,9,6.25S2,11.5,2,13.5a6.22,6.22,0,0,0,1.75,3.75C7,13,11,9,17,8Z"/></svg>
+                     <svg class="w-8 h-8 sm:w-12 sm:h-12 text-green-300 animate-leaf" fill="currentColor" viewBox="0 0 24 24"><path d="M17,8C8,10,5.9,16.17,3.82,21.34L5.71,22l1-2.3A4.49,4.49,0,0,0,8,20C19,20,22,3,22,3,21,5,14,5.25,9,6.25S2,11.5,2,13.5a6.22,6.22,0,0,0,1.75,3.75C7,13,11,9,17,8Z"/></svg>
+                     <svg class="w-6 h-6 sm:w-10 sm:h-10 text-green-300 animate-leaf" style="animation-delay: 1s" fill="currentColor" viewBox="0 0 24 24"><path d="M17,8C8,10,5.9,16.17,3.82,21.34L5.71,22l1-2.3A4.49,4.49,0,0,0,8,20C19,20,22,3,22,3,21,5,14,5.25,9,6.25S2,11.5,2,13.5a6.22,6.22,0,0,0,1.75,3.75C7,13,11,9,17,8Z"/></svg>
                  </div>
             </div>
 
@@ -231,6 +276,29 @@
                 startConfetti();
             } else {
                 card.classList.remove('flipped');
+            }
+        });
+
+        // Touch support for better mobile experience
+        let touchStartY = 0;
+        card.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
+
+        card.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = Math.abs(touchStartY - touchEndY);
+            
+            // Only flip if it's a tap (not a swipe)
+            if (diff < 10) {
+                isFlipped = !isFlipped;
+                if (isFlipped) {
+                    card.classList.add('flipped');
+                    startConfetti();
+                } else {
+                    card.classList.remove('flipped');
+                }
             }
         });
 
@@ -303,6 +371,24 @@
                 animationId = requestAnimationFrame(animateConfetti);
             }
         }
+
+        // Prevent zoom on double tap
+        let lastTap = 0;
+        card.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 500 && tapLength > 0) {
+                e.preventDefault();
+            }
+            lastTap = currentTime;
+        });
+
+        // Handle orientation change
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                resizeCanvas();
+            }, 100);
+        });
     </script>
 </body>
 </html>
